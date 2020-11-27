@@ -1,0 +1,162 @@
+﻿@model PersonCUVM
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>დაამატეთ მომხმარებელი</h1>
+<hr />
+<br />
+<div>
+    <form asp-action="Create" enctype="multipart/form-data">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            <div class="col-4">
+                @if (!string.IsNullOrEmpty(Model.Person.Picture))
+                {
+                    <img src="@Model.Person.Picture" />
+                }
+                <div class="form-group">
+                    <label asp-for="Person.File">ატვირთეთ ფოტო</label>
+                    <input type="file" asp-for="Person.File" class="form-control-file">
+                </div>
+            </div>
+            <div class="col-8">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label asp-for="Person.Firstname">სახელი</label>
+                            <input class="form-control" asp-for="Person.Firstname">
+                            <span asp-validation-for="Person.Firstname" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label asp-for="Person.Lastname">გვარი</label>
+                            <input class="form-control" asp-for="Person.Lastname">
+                            <span asp-validation-for="Person.Lastname" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label asp-for="Person.PersonalNumber">პირადი ნომერი</label>
+                            <input class="form-control" asp-for="Person.PersonalNumber">
+                            <span asp-validation-for="Person.PersonalNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label asp-for="Person.BirthDate">დაბადების თარიღი</label>
+                            <input class="form-control datepicker" asp-for="Person.BirthDate">
+                            <span asp-validation-for="Person.BirthDate" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label asp-for="Person.Email">ელ.ფოსტა</label>
+                            <input class="form-control" asp-for="Person.Email">
+                            <span asp-validation-for="Person.Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label asp-for="Person.GenderId">სქესი</label>
+                            <select class="form-control" asp-items="Model.Components.Genders" asp-for="Person.GenderId"></select>
+                            <span asp-validation-for="Person.GenderId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label asp-for="Person.PositionId">პოზიცია</label>
+                            <select class="form-control" asp-items="Model.Components.Positions" asp-for="Person.PositionId"></select>
+                            <span asp-validation-for="Person.PositionId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row phones">
+
+                            <div class="template">
+                                <div class="col-6 py-2 mb-3 phone-block">
+                                    <div>
+                                        <button type="button" class="btn btn-danger remove-att">
+                                            წაშლა
+                                        </button>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Person_Phones_0__PhoneTypeId">ტელეფონის ტიპი</label>
+                                        <select class="form-control" asp-items="Model.Components.PhoneTypes" data-val="true" data-val-required="The PhoneTypeId field is required." id="Person_Phones_0__PhoneTypeId" name="Person.Phones[0].PhoneTypeId">
+                                        </select>
+                                        <span class="text-danger field-validation-valid" data-valmsg-for="Person.Phones[0].PhoneTypeId" data-valmsg-replace="true"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Person_Phones_0__PhoneNumber">ნომერი</label>
+                                        <input class="form-control" type="text" id="Person_Phones_0__PhoneNumber" name="Person.Phones[0].PhoneNumber" value="">
+                                        <span class="text-danger field-validation-valid" data-valmsg-for="Person.Phones[0].PhoneNumber" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="add-phone m-3">
+                            <button class="btn btn-info" id="add_phone" type="button">
+                                ტელეფონის დამატება
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">დამატება</button>
+                            <a asp-action="Index">უკან დაბრუნება</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+@section Scripts
+{
+    <script>
+        var phonesTemplate = $(".phones").find(".template").html();
+        $(".phones").find(".template").remove();
+        var phoneIndex = 0;
+
+        $("#add_phone").on("click", function () {
+            $(phonesTemplate).find(".form-group").each(function () {
+                var select = $(this).find("select");
+                var input = $(this).find("input");
+                var name = "";
+
+                if (select.length > 0) {
+                    name = $(select).attr("name");
+                } else {
+                    name = $(input).attr("name");
+                }
+                var ind = name.lastIndexOf('[');
+
+                var index = name.substr(ind + 1, 1);
+
+                if (phoneIndex == 0 && index != 0) {
+                    phoneIndex = parseInt(index);
+                }
+
+                fname = name.substr(0, ind);
+                var newName = "[" + phoneIndex + "]";
+                var newId = "_" + phoneIndex + "__";
+                var regex = new RegExp("_" + index + "__", "gi");
+                phonesTemplate = phonesTemplate.replace(regex, newId);
+                phonesTemplate = phonesTemplate.replace("[" + index + "]", newName);
+                phonesTemplate = phonesTemplate.replace("[" + index + "]", newName);
+            });
+            phoneIndex += 1;
+            $(".phones").append(phonesTemplate);
+        });
+
+        $(document).on("click", ".remove-att", function () {
+            $(this).closest(".col-6").remove();
+        });
+    </script>
+
+    
+}
